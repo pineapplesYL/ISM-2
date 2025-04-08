@@ -15,7 +15,11 @@
 
 ## 功能说明
 
-### 成员代码/ChenJingyao/EasySpiderCJY.py
+### 成员代码
+
+#### ChenJingyao
+
+##### EasySpiderCJY.py
 这是一个简单但功能完整的网页爬虫工具，主要功能包括：
 
 - 网页内容抓取：支持通过URL获取网页内容
