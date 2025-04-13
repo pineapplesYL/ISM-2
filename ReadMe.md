@@ -17,6 +17,8 @@
         └── Analyzer.py  # Python静态代码分析工具
     └── Zhaoluwen/     # 成员赵璐文个人代码目录
         └── convertGraph.py  # 图格式转换工具
+    └── ZhangQingyue/     # 成员张清越个人代码目录
+        └── assembler.py  # 自定义 VM 汇编器
 ```
 
 ## 功能说明
@@ -119,4 +121,23 @@
 - 处理不同类型节点的特征差异
 - 时间戳转换
 - 支持类别标签
-  
+
+
+---
+
+#### ZhangQingyue
+
+此工具用于将用户给出的汇编代码转换为一个自定义虚拟机的字节码。此工具是我的[CTF题目](https://github.com/zqyio/chunzhen_ctf_challenges/tree/main/dubhectf2024/pwn-cvm)题解的一部分。语法借鉴了部分 nasm 语法
+
+主要特性包括：
+
+1. 汇编器拥有完整的 python 代码类型标注，易于维护
+
+2. times 伪指令，可以重复汇编代码若干遍
+
+3. equ 伪指令，用于定义常量
+
+4. label 标签支持，用于间接寻址
+
+5. 支持代码注释，使用分号开头的行会被忽略
+
