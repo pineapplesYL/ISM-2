@@ -19,6 +19,8 @@
         └── convertGraph.py  # 图格式转换工具
     └── ZhangQingyue/     # 成员张清越个人代码目录
         └── assembler.py  # 自定义 VM 汇编器
+    └── Linxianghong/     # 成员林祥鸿个人代码目录
+        └── watermarkHide.py  # 图水印嵌入工具
 ```
 
 ## 功能说明
