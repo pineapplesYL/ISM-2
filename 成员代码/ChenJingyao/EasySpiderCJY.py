@@ -6,7 +6,6 @@ import requests
 from bs4 import BeautifulSoup
 import time
 import random
-import os
 from datetime import datetime
 
 # 定义一个爬虫类
