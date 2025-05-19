@@ -82,15 +82,32 @@ class SecurityAnalyzer:
     def _check_sql_injection(self, tree: ast.AST, filename: str) -> None:
         """检查SQL注入漏洞"""
         for node in ast.walk(tree):
-            # 检查字符串拼接形式的SQL注入
             if isinstance(node, ast.Call):
                 if hasattr(node, 'func') and isinstance(node.func, ast.Attribute):
                     if node.func.attr in self.rules["sql_functions"]:
                         for arg in node.args:
-                            if isinstance(arg, ast.BinOp) and isinstance(arg.op, ast.Add):
+                            # 检测所有字符串格式化方式
+                            injection_patterns = (
+                                ast.BinOp,        # 字符串拼接（+）
+                                ast.JoinedStr,    # f-string
+                                ast.Mod,          # % 格式化
+                                ast.FormattedValue # format()方法
+                            )
+                        
+                            def contains_unsafe(value):
+                                """递归检测不安全节点"""
+                                if isinstance(value, injection_patterns):
+                                    return True
+                                if isinstance(value, ast.BinOp):
+                                    return any(contains_unsafe(operand) for operand in [value.left, value.right])
+                                if hasattr(value, 'values'):
+                                    return any(contains_unsafe(v) for v in value.values)
+                                return False
+                        
+                            if contains_unsafe(arg):
                                 self.vulnerabilities.append({
                                     "type": "sql_injection",
-                                    "message": "可能的SQL注入漏洞: 使用字符串拼接构建SQL查询",
+                                    "message": "可能的SQL注入漏洞: 使用动态字符串构建SQL查询",
                                     "file": filename,
                                     "line": node.lineno
                                 })
