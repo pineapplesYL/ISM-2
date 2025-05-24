@@ -26,7 +26,6 @@ def convert_time_to_timestamp(time_str):
     except (ValueError, TypeError):
         return 0
 
-
 def convert_gml_to_graphsage(gml_file, features_file, output_prefix, train_ratio=0.7, val_ratio=0.15):
     """
     将 GML 图转换为 GraphSAGE 格式并保存输出文件
