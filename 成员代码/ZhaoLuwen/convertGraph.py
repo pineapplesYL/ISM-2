@@ -5,8 +5,8 @@ from collections import defaultdict
 import random
 from datetime import datetime
 import pandas as pd
-import os  # 用于路径验证
-from pathlib import Path  # 用于路径安全检查
+import os  # 新增：用于路径验证
+from pathlib import Path  # 新增：用于路径安全检查
 
 def convert_time_to_timestamp(time_str):
     """将时间字符串转换为时间戳
@@ -22,7 +22,7 @@ def convert_time_to_timestamp(time_str):
     try:
         dt = datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
         return dt.timestamp()
-    except (ValueError, TypeError):
+    except (ValueError, TypeError):  # 修改：明确捕获异常
         return 0
 
 def convert_gml_to_graphsage(gml_file, features_file, output_prefix, train_ratio=0.7, val_ratio=0.15):
@@ -35,17 +35,20 @@ def convert_gml_to_graphsage(gml_file, features_file, output_prefix, train_ratio
         train_ratio: 训练集比例（默认 0.7）
         val_ratio: 验证集比例（默认 0.15）
     """
-    # 安全性：验证文件是否存在
+
+    # 新增：验证输入文件路径
     if not os.path.exists(gml_file) or not os.path.exists(features_file):
         raise FileNotFoundError("输入文件不存在")
-
+    if not Path(gml_file).resolve().is_relative_to(Path.cwd()) or \
+       not Path(features_file).resolve().is_relative_to(Path.cwd()):
+        raise ValueError("无效文件路径（可能存在路径遍历风险）")
     # 安全性：防止路径遍历攻击
     for file_path in [gml_file, features_file]:
         resolved = Path(file_path).resolve()
         if not resolved.is_relative_to(Path.cwd()):
             raise ValueError(f"文件路径非法：{file_path}")
+    # 新增：确保输出目录存在
 
-    # 自动创建输出目录
     output_dir = os.path.dirname(output_prefix)
     if output_dir and not os.path.exists(output_dir):
         os.makedirs(output_dir, exist_ok=True)
@@ -59,6 +62,7 @@ def convert_gml_to_graphsage(gml_file, features_file, output_prefix, train_ratio
             node_features = json.load(f)
     except json.JSONDecodeError as e:
         raise ValueError(f"节点特征 JSON 无效：{e}")
+
 
     nodes = list(G.nodes())
     id_map = {node: i for i, node in enumerate(nodes)}
@@ -112,7 +116,6 @@ def convert_gml_to_graphsage(gml_file, features_file, output_prefix, train_ratio
         json.dump(class_map, f)
     np.save(f"{output_prefix}-feats.npy", feats)
 
-    # 节点 CSV
     nodes_data = []
     for node in nodes:
         node_type = G.nodes[node]['type']
@@ -160,7 +163,6 @@ def convert_gml_to_graphsage(gml_file, features_file, output_prefix, train_ratio
     print(f"正常域名数量：{normal_count}")
 
 if __name__ == "__main__":
-    # 示例调用
     gml_file = "your_graph.gml"
     features_file = "node_features.json"
     output_prefix = "graph_data"
